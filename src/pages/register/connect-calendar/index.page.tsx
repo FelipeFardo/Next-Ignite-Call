@@ -17,6 +17,8 @@ export default function Register() {
     signIn('google')
   }
 
+  console.log(session)
+
   return (
     <Container>
       <Header>
