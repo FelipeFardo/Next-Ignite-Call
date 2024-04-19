@@ -59,7 +59,7 @@ export default async function handler(
     },
   )
 
-  const blockedTime = await prisma.scheduling.findMany({
+  const blockedTimes = await prisma.scheduling.findMany({
     select: {
       date: true,
     },
@@ -73,7 +73,7 @@ export default async function handler(
   })
 
   const availableTimes = possibleTimes.filter((time) => {
-    const isTimeBlocked = !blockedTime.some(
+    const isTimeBlocked = blockedTimes.some(
       (blockedTime) => blockedTime.date.getHours() === time,
     )
     const isTimeInPast = referenceDate.set('hour', time).isBefore(new Date())
