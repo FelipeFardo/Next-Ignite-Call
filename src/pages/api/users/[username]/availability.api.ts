@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '../../../../lib/prisma'
 import dayjs from 'dayjs'
 
-export default async function handle(
+export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
@@ -26,7 +26,7 @@ export default async function handle(
   })
 
   if (!user) {
-    return res.status(400).json({ message: 'user does not exist' })
+    return res.status(400).json({ message: 'User does not exist' })
   }
 
   const referenceDate = dayjs(String(date))
@@ -34,7 +34,7 @@ export default async function handle(
   const isPastDate = referenceDate.endOf('day').isBefore(new Date())
 
   if (isPastDate) {
-    return res.json({ availability: [] })
+    return res.json({ possibleTimes: [], availableTimes: [] })
   }
 
   const userAvailability = await prisma.userTimeInterval.findFirst({
@@ -45,7 +45,7 @@ export default async function handle(
   })
 
   if (!userAvailability) {
-    return res.json({ availability: [] })
+    return res.json({ possibleTimes: [], availableTimes: [] })
   }
 
   const { time_start_in_minutes, time_end_in_minutes } = userAvailability
@@ -53,11 +53,11 @@ export default async function handle(
   const startHour = time_start_in_minutes / 60
   const endHour = time_end_in_minutes / 60
 
-  const possibleTimes = Array.from({
-    length: endHour - startHour,
-  }).map((_, i) => {
-    return startHour + i
-  })
+  const possibleTimes = Array.from({ length: endHour - startHour }).map(
+    (_, i) => {
+      return startHour + i
+    },
+  )
 
   const blockedTime = await prisma.scheduling.findMany({
     select: {
@@ -72,11 +72,11 @@ export default async function handle(
     },
   })
 
-  const availabilityTimes = possibleTimes.filter((time) => {
+  const availableTimes = possibleTimes.filter((time) => {
     return !blockedTime.some(
       (blockedTime) => blockedTime.date.getHours() === time,
     )
   })
 
-  return res.json({ possibleTimes, availabilityTimes })
+  return res.json({ possibleTimes, availableTimes })
 }
