@@ -29,6 +29,7 @@ This project was developed with the following technologies:
 - Next
 - Next Auth
 - Node
+- Prisma
 - Mysql
 - Stitches
 - Radix-UI
